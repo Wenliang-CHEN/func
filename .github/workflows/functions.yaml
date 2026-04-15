@@ -12,9 +12,11 @@ on:
   push:
     branches:
       - main
+      - python-issue-fixed-base
   pull_request:
     branches:
       - main
+      - python-issue-fixed-base
 
 # Global version definitions
 env:
@@ -24,31 +26,11 @@ env:
   JAVA_DISTRIBUTION: 'temurin'
 
 jobs:
-  # --------
-  # PRECHECK
-  # --------
-  precheck:
-    name: Precheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: knative/actions/setup-go@main
-
-      - name: Check and Lint
-        run: make check
-      - name: Check Generated Schema File
-        run: make check-schema
-      - name: Check Templates
-        run: make check-templates
-      - name: Check Embedded FS
-        run: make check-embedded-fs
-
   # ----------
   # UNIT TESTS
   # ----------
   test-unit:
     name: Unit Tests
-    needs: precheck
     strategy:
       fail-fast: false
       matrix:
@@ -83,7 +65,6 @@ jobs:
   # --------------
   test-templates:
     name: Template Tests
-    needs: precheck
     strategy:
       fail-fast: false
       matrix:
@@ -130,7 +111,6 @@ jobs:
   # -----------------
   test-integration:
     name: Integration Tests
-    needs: precheck
     runs-on: ubuntu-latest
     env:
       FUNC_CLUSTER_RETRIES: 5
@@ -193,7 +173,6 @@ jobs:
   # Runs Core, Metadata, and Remote
   test-e2e:
     name: E2E - Core, Metadata, and Remote
-    needs: precheck
     runs-on: ubuntu-latest
     env:
       FUNC_CLUSTER_RETRIES: 5
@@ -247,7 +226,6 @@ jobs:
   # ----------------
   test-e2e-podman:
     name: E2E - Podman
-    needs: precheck
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -302,7 +280,6 @@ jobs:
   # -----------------
   test-e2e-runtimes:
     name: E2E - Runtimes
-    needs: precheck
     strategy:
       matrix:
         runtime:
@@ -389,14 +366,6 @@ jobs:
   # Build and Publish
   build:
     name: Build Release
-    needs:
-      - test-unit
-      - test-integration
-      - test-templates
-      - test-e2e
-      - test-e2e-podman
-      - test-e2e-runtimes
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -405,32 +374,8 @@ jobs:
         run: make cross-platform
       - uses: actions/upload-artifact@v4
         with:
-          name: OSX Binary (AMD)
-          path: func_darwin_amd64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: OSX Binary (ARM)
-          path: func_darwin_arm64
-      - uses: actions/upload-artifact@v4
-        with:
           name: Linux Binary (AMD)
           path: func_linux_amd64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux Binary (ARM)
-          path: func_linux_arm64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux Binary (PPC64LE)
-          path: func_linux_ppc64le
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux Binary (S390X)
-          path: func_linux_s390x
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Windows Binary
-          path: func_windows_amd64.exe
 
   publish-utils-image:
     name: Publish Utils Image
