@@ -91,7 +91,7 @@ fi
 // (where main resides) rather than the root, and indicates the main is
 // likewise in .func/build/service/main.py via Procfile.  See the comment
 // inline on line 50 of the script for where the directory change instruction
-// was added.
+// was added. This will be forced built
 const PythonAssembler = `
 #!/bin/bash
 

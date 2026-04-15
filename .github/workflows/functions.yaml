@@ -12,9 +12,11 @@ on:
   push:
     branches:
       - main
+      - python-issue-fixed-base
   pull_request:
     branches:
       - main
+      - python-issue-fixed-base
 
 # Global version definitions
 env:
@@ -396,7 +398,6 @@ jobs:
       - test-e2e
       - test-e2e-podman
       - test-e2e-runtimes
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -405,32 +406,8 @@ jobs:
         run: make cross-platform
       - uses: actions/upload-artifact@v4
         with:
-          name: OSX Binary (AMD)
-          path: func_darwin_amd64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: OSX Binary (ARM)
-          path: func_darwin_arm64
-      - uses: actions/upload-artifact@v4
-        with:
           name: Linux Binary (AMD)
           path: func_linux_amd64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux Binary (ARM)
-          path: func_linux_arm64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux Binary (PPC64LE)
-          path: func_linux_ppc64le
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Linux Binary (S390X)
-          path: func_linux_s390x
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Windows Binary
-          path: func_windows_amd64.exe
 
   publish-utils-image:
     name: Publish Utils Image
