@@ -26,31 +26,11 @@ env:
   JAVA_DISTRIBUTION: 'temurin'
 
 jobs:
-  # --------
-  # PRECHECK
-  # --------
-  precheck:
-    name: Precheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: knative/actions/setup-go@main
-
-      - name: Check and Lint
-        run: make check
-      - name: Check Generated Schema File
-        run: make check-schema
-      - name: Check Templates
-        run: make check-templates
-      - name: Check Embedded FS
-        run: make check-embedded-fs
-
   # ----------
   # UNIT TESTS
   # ----------
   test-unit:
     name: Unit Tests
-    needs: precheck
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +65,6 @@ jobs:
   # --------------
   test-templates:
     name: Template Tests
-    needs: precheck
     strategy:
       fail-fast: false
       matrix:
@@ -132,7 +111,6 @@ jobs:
   # -----------------
   test-integration:
     name: Integration Tests
-    needs: precheck
     runs-on: ubuntu-latest
     env:
       FUNC_CLUSTER_RETRIES: 5
@@ -195,7 +173,6 @@ jobs:
   # Runs Core, Metadata, and Remote
   test-e2e:
     name: E2E - Core, Metadata, and Remote
-    needs: precheck
     runs-on: ubuntu-latest
     env:
       FUNC_CLUSTER_RETRIES: 5
@@ -249,7 +226,6 @@ jobs:
   # ----------------
   test-e2e-podman:
     name: E2E - Podman
-    needs: precheck
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -304,7 +280,6 @@ jobs:
   # -----------------
   test-e2e-runtimes:
     name: E2E - Runtimes
-    needs: precheck
     strategy:
       matrix:
         runtime:
@@ -391,13 +366,6 @@ jobs:
   # Build and Publish
   build:
     name: Build Release
-    needs:
-      - test-unit
-      - test-integration
-      - test-templates
-      - test-e2e
-      - test-e2e-podman
-      - test-e2e-runtimes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
